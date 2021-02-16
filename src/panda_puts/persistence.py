@@ -1,6 +1,11 @@
 import json
+from typing import List
 
 from panda_puts.types.extras import Strategy
+
+
+def list_saved_strategies() -> List[str]:
+    return ["TODO"]
 
 
 def save_strategy(strategy: Strategy) -> None:

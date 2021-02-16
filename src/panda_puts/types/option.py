@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import List, Tuple
 
 
 class OptionType(Enum):
@@ -18,6 +19,20 @@ class OptionContract:
     position: OptionPosition
     strike: float
     premium: float
+
+    def __str__(self):
+        return (
+            f"{self.position} {self.type} Option @ ${self.strike} for ${self.premium}"
+        )
+
+    @classmethod
+    def from_bullets(cls, result: List[Tuple[str, str]]):
+        return cls(
+            type=OptionType[result[0][1]],
+            position=OptionPosition[result[1][1]],
+            strike=result[2][1],
+            premium=result[3][1],
+        )
 
     @classmethod
     def from_json(cls, data):
