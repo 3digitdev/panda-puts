@@ -1,13 +1,9 @@
-from bullet import SlidePrompt, Bullet, ScrollBar
 from panda_puts.graphs import plotly_graph
-
-from panda_puts.persistence import list_saved_strategies
 from panda_puts.types.extras import Strategy
 from panda_puts.types.option import OptionContract, OptionType, OptionPosition
 
 
 def main():
-    print("Let's go")
     # ------------------- #
     """
     Bull Call

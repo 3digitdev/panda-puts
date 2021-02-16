@@ -179,6 +179,9 @@ STRATEGIES: Dict[str, Callable[[Strategy], Tuple[Points, Callable[[float], float
 
 
 def plotly_graph(strategy: Strategy):
+    if strategy.name not in STRATEGIES:
+        names = ", ".join(STRATEGIES.keys())
+        raise Exception(f"{strategy.name} is not a valid strategy!\nChoose from [{names}]")
     points, cmp_fn = STRATEGIES[strategy.name](strategy)
     x, y = build_data(strategy, points, cmp_fn)
     df = pd.DataFrame({"Stock Price ($)": x, "Profit/Loss ($)": y, "Bear Call": y})
