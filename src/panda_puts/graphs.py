@@ -60,33 +60,6 @@ def bear_put_spread(strategy: Strategy) -> Tuple[Points, Callable[[float], float
     return points, cmp_fn
 
 
-def butterfly_spread(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
-    itm_buy = strategy.options[0]
-    atm_sell = strategy.options[1]
-    otm_buy = strategy.options[-1]
-    points = Points(
-        max_profits=[(strategy.market_price, (((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.premium + strategy.market_price)) * 100)],
-        max_losses=[
-            (itm_buy.strike, ((atm_sell.premium * 2) - (itm_buy.premium + otm_buy.premium)) * 100),
-            (otm_buy.strike, (((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.strike + otm_buy.premium)) * 100)
-        ],
-        graph_min=itm_buy.strike - (otm_buy.strike - itm_buy.strike),
-        graph_max=otm_buy.strike + (otm_buy.strike - itm_buy.strike)
-    )
-
-    def cmp_fn(price: float) -> float:
-        if price <= itm_buy.strike:
-            return (atm_sell.premium * 2) - (itm_buy.premium + otm_buy.premium)
-        elif itm_buy.strike < price <= atm_sell.strike:
-            return (price + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.premium)
-        elif atm_sell.strike < price <= otm_buy.strike:
-            return ((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.premium + price)
-        else:
-            return ((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.strike + otm_buy.premium)
-
-    return points, cmp_fn
-
-
 def long_straddle(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
     premium_sum = sum([o.premium for o in strategy.options])
     strike = strategy.options[0].strike
@@ -130,6 +103,33 @@ def long_strangle(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]
     return points, cmp_fn
 
 
+def butterfly_spread(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
+    itm_buy = strategy.options[0]
+    atm_sell = strategy.options[1]
+    otm_buy = strategy.options[-1]
+    points = Points(
+        max_profits=[(strategy.market_price, (((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.premium + strategy.market_price)) * 100)],
+        max_losses=[
+            (itm_buy.strike, ((atm_sell.premium * 2) - (itm_buy.premium + otm_buy.premium)) * 100),
+            (otm_buy.strike, (((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.strike + otm_buy.premium)) * 100)
+        ],
+        graph_min=itm_buy.strike - (otm_buy.strike - itm_buy.strike),
+        graph_max=otm_buy.strike + (otm_buy.strike - itm_buy.strike)
+    )
+
+    def cmp_fn(price: float) -> float:
+        if price <= itm_buy.strike:
+            return (atm_sell.premium * 2) - (itm_buy.premium + otm_buy.premium)
+        elif itm_buy.strike < price <= atm_sell.strike:
+            return (price + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.premium)
+        elif atm_sell.strike < price <= otm_buy.strike:
+            return ((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.premium + price)
+        else:
+            return ((atm_sell.strike * 2) + (atm_sell.premium * 2)) - (itm_buy.strike + itm_buy.premium + otm_buy.strike + otm_buy.premium)
+
+    return points, cmp_fn
+
+
 def iron_condor(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
     buy_premiums = sum([o.premium for o in strategy.options if o.position == OptionPosition.BUY])
     sell_premiums = sum([o.premium for o in strategy.options if o.position == OptionPosition.SELL])
@@ -143,8 +143,8 @@ def iron_condor(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
             (buy_put_option.strike, ((buy_put_option.strike + sell_premiums) - (sell_put_option.strike + buy_premiums)) * 100),
             (buy_call_option.strike, ((sell_call_option.strike + sell_premiums) - (buy_call_option.strike + buy_premiums)) * 100)
         ],
-        graph_min=0.0,
-        graph_max=(strategy.market_price * 2.0)
+        graph_min=(buy_put_option.strike - (strategy.market_price - buy_put_option.strike)),
+        graph_max=(buy_call_option.strike + (buy_call_option.strike - strategy.market_price))
     )
 
     def cmp_fn(price: float) -> float:
@@ -162,13 +162,19 @@ def iron_condor(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
     return points, cmp_fn
 
 
+def iron_butterfly(strategy: Strategy) -> Tuple[Points, Callable[[float], float]]:
+    # The Iron Butterfly's calculations are the same as Iron Condor
+    return iron_condor(strategy)
+
+
 STRATEGIES: Dict[str, Callable[[Strategy], Tuple[Points, Callable[[float], float]]]] = {
     "Bull Call Spread": bull_call_spread,
     "Bear Put Spread": bear_put_spread,
     "Long Straddle": long_straddle,
     "Long Strangle": long_strangle,
     "Butterfly Spread": butterfly_spread,
-    "Iron Condor": iron_condor
+    "Iron Condor": iron_condor,
+    "Iron Butterfly": iron_butterfly
 }
 
 

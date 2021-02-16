@@ -14,18 +14,10 @@ def main():
         Buy Call @ Lower Strike
         Sell Call @ Higher Strike
     """
-    plotly_graph(
-        Strategy(
-            "Bull Call Spread",
-            "SABR",
-            11.81,
-            "2-19",
-            [
-                OptionContract(OptionType.CALL, OptionPosition.BUY, 12.0, 0.48),
-                OptionContract(OptionType.CALL, OptionPosition.SELL, 13.0, 0.19),
-            ],
-        )
-    )
+    # plotly_graph(Strategy("Bull Call Spread", "SABR", 11.81, "2-19", [
+    #     OptionContract(OptionType.CALL, OptionPosition.BUY, 12.0, 0.48),
+    #     OptionContract(OptionType.CALL, OptionPosition.SELL, 13.0, 0.19),
+    # ]))
     # ------------------- #
     """
     Bear Put
@@ -85,6 +77,20 @@ def main():
     #     # Bear Call
     #     OptionContract(OptionType.CALL, OptionPosition.SELL, 13.00, 0.78),
     #     OptionContract(OptionType.CALL, OptionPosition.BUY, 15.00, 0.36)
+    # ]))
+    # ------------------- #
+    """
+    Iron Butterfly
+        Sell an ATM Put (=market)
+        Buy an OTM Put (<market)
+        Sell an ATM Call (=market)
+        Buy an OTM Call (>market)
+    """
+    # plotly_graph(Strategy("Iron Butterfly", "SABR", 11.00, "3-19", [
+    #     OptionContract(OptionType.PUT, OptionPosition.SELL, 11.00, 0.65),
+    #     OptionContract(OptionType.PUT, OptionPosition.BUY, 9.00, 0.13),
+    #     OptionContract(OptionType.CALL, OptionPosition.SELL, 11.00, 1.24),
+    #     OptionContract(OptionType.CALL, OptionPosition.BUY, 13.00, 0.48)
     # ]))
     # ------------------- #
 
